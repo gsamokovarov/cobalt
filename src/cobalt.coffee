@@ -1,44 +1,70 @@
 http = require 'http'
-{stringify} = require 'querystring'
+querystring = require 'querystring'
+{EventEmitter} = require 'events'
 
-# Helper HTTP POST method.
-http.post = (options, callback) ->
-  options.method = 'POST'
-  query ?= stringify options.query
-  options.headers ?=
-    'Content-Type': 'application/x-www-form-urlencoded'
-    'Content-Length': query.length
+# The pygmentizer object is responsible for the environment needed to
+# colorize a chunk of code.
+class exports.Pygmentizer extends EventEmitter
+  constructor: (options) ->
+    EventEmitter.call(this)
 
-  request = http.request options, callback
-  request.end(query if query)
+    @host = options.host or 'pygmentize.me'
+    @port = options.port or 80
+    @lexer = options.lexer
+    @formatter = options.formatter
+    @options = options.options or {}
+    @path = options.path or '/as/'
+    @type = options.type or 'unencoded'
+    @parser = options.parser or Pygmentizer.query.parser[@type]
 
-# Builds the URL path to the formatter.
-pathFor = (formatter) ->
-  "/as/#{formatter}"
+  # Colorizes the code and returns the highlight and the error status as the
+  # first two parameters of the callback, which is called when done.
+  pygmentize: (options, callback) ->
+    query = @parser
+      code: options.code or (typeof options is 'string' ? options : nil)
+      lexer: options.lexer or @lexer
+      foratter: options.formatter or @formatter
+      options: options.options or @options
 
-exports.config =
-  host: 'pygmentize.it'
-  port: '80'
+    data =
+      method: 'POST'
+      headers:
+        'Content-Type': Pygmentizer.query.type[@type]
+        'Content-Length': query.length
+      host: @host
+      port: @port
+      path: "#{options.path or @path}#{options.formatter or @formatter}"
 
-exports.colorize = (code, lexer, formatter, options = {}) ->
-  data =
-    host: exports.config.host
-    port: exports.config.port
-    path: pathFor(formatter)
-    query:
-      {code, lexer, formatter, options}
-  
-  http.post data, (response) ->
-    naughty = response.statusCode isnt 200
+    powder = [] # You pygmentize with the powder :)
+    request = http.request data, (response) =>
+      response.on 'data', (chunk) =>
+        dust = String(chunk)
 
-    collected = []
-    response.on 'data', (chunk) ->
-      collected.push chunk.toString()
+        @emit 'data', dust
+        powder.push dust
 
-    response.on 'end', ->
-      throw new Error collected if naughty
-      collected.join ''
+      response.on 'end', =>
+        highlight = powder.join ''
+        error = response.statusCode isnt 200 ? true : false
 
-# Alias it to something funnier.
-exports.pygmentize = exports.colorize
+        @emit 'end', highlight, error
+        callback?(highlight, error)
+
+    request.end query
+
+    this
+
+exports.Pygmentizer::colorize = exports.Pygmentizer::pygmentize
+
+exports.Pygmentizer.query =
+  type:
+    json: 'application/json'
+    unencoded: 'application/x-www-form-urlencoded'
+  parser:
+    json: (data) -> JSON.stringify(data)
+    unencoded: (data) -> querystring.stringify(data)
+
+# Provide more node-ish interface.
+exports.createClient = (options) ->
+  new Pygmentizer options
 
