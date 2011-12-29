@@ -1,35 +1,39 @@
 http = require 'http'
-querystring = require 'querystring'
 {EventEmitter} = require 'events'
 
 # The pygmentizer object is responsible for the environment needed to
 # colorize a chunk of code.
 class exports.Pygmentizer extends EventEmitter
-  constructor: (options) ->
+  constructor: (options = {}) ->
     EventEmitter.call(this)
 
     @host = options.host or 'pygmentize.me'
     @port = options.port or 80
     @lexer = options.lexer
+    @styles = options.styles
     @formatter = options.formatter
     @options = options.options or {}
-    @path = options.path or '/as/'
+    @path = options.path or '/api/formatter/'
     @type = options.type or 'unencoded'
-    @parser = options.parser or Pygmentizer.query.parser[@type]
+    @parser = options.parser or require('querystring').stringify
 
   # Colorizes the code and returns the highlight and the error status as the
   # first two parameters of the callback, which is called when done.
   pygmentize: (options, callback) ->
+    unless options.formatter? or @formatter?
+      throw new TypeError 'You must specify a formatter'
+
     query = @parser
-      code: options.code or (typeof options is 'string' ? options : nil)
+      code: options.code or if typeof options is 'string' then options else null
       lexer: options.lexer or @lexer
-      foratter: options.formatter or @formatter
-      options: options.options or @options
+      formatter: options.formatter or @formatter
+      options: JSON.stringify(options.options or @options)
+      styles: JSON.stringify(options.styles or @styles)
 
     data =
       method: 'POST'
       headers:
-        'Content-Type': Pygmentizer.query.type[@type]
+        'Content-Type': 'application/x-www-form-urlencoded'
         'Content-Length': query.length
       host: @host
       port: @port
@@ -38,14 +42,14 @@ class exports.Pygmentizer extends EventEmitter
     powder = [] # You pygmentize with the powder :)
     request = http.request data, (response) =>
       response.on 'data', (chunk) =>
-        dust = String(chunk)
+        dust = String chunk
 
         @emit 'data', dust
         powder.push dust
 
       response.on 'end', =>
         highlight = powder.join ''
-        error = response.statusCode isnt 200 ? true : false
+        error = if response.statusCode isnt 200 then true else false
 
         @emit 'end', highlight, error
         callback?(highlight, error)
@@ -56,15 +60,6 @@ class exports.Pygmentizer extends EventEmitter
 
 exports.Pygmentizer::colorize = exports.Pygmentizer::pygmentize
 
-exports.Pygmentizer.query =
-  type:
-    json: 'application/json'
-    unencoded: 'application/x-www-form-urlencoded'
-  parser:
-    json: (data) -> JSON.stringify(data)
-    unencoded: (data) -> querystring.stringify(data)
-
 # Provide more node-ish interface.
-exports.createClient = (options) ->
-  new Pygmentizer options
-
+exports.createClient = (options = {}) ->
+  new exports.Pygmentizer options

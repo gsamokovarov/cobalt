@@ -1,0 +1,8 @@
+{ "name": "cobalt"
+, "description": "Node.js client for pygmentize.me - your friendly syntax highlighting service."
+, "version": "0.1"
+, "author": "Genadi Samokovarov <gsamokovarov@gmail.com>"
+, "keywords": ["pygments", "pygmentize.me", "syntax", "highlight", "coffeescript"]
+, "main": "./lib/cobalt.js"
+, "repository": {"type": "git", "url": "git://github.com/gsamokovarov/cobalt.git"}
+}

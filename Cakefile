@@ -1,32 +1,37 @@
 {exec} = require 'child_process'
 puts = console.log
 
-task 'compile', 'Compiles the project to JS.', (options) ->
+mocha = (args...) ->
+  sh "PATH=$PATH:node_modules/mocha/bin mocha #{args.join ' '}"
+
+task 'compile', 'Compiles the project to JS.', ->
   puts 'Compiling...'
 
-  options.to ?= 'lib/'
-  sh "coffee -o #{options.to} -c src/"
+  sh "coffee -o lib/ -c src/"
+  sh "coffee -o test/lib/ -c test/src/"
 
 task 'test', 'Tests the project', ->
   puts "Testing..."
 
-  invoke 'compile'
-  sh "coffee test/cobalt.coffee"
+  mocha '-c', '-u bdd', '-R spec', 'test/lib/cobalt.js'
+
+task 'test', 'Tests the project', ->
+  puts "Testing..."
+
+  sh "node_modules/mocha/bin/mocha -c -u bdd -R spec test/lib/cobalt.js"
 
 task 'self', 'pygmentize self', ->
-  invoke 'compile'
-
-  {Pygmentizer} = require './lib/cobalt'
+  {createClient} = require './lib/cobalt'
   fs = require 'fs'
 
   fs.readFile __filename, (err, data) ->
-    pyg = new Pygmentizer
+    pyg = createClient
       host: 'localhost'
-      port: '8080'
+      port: '8000'
       lexer: 'coffee-script'
       formatter: 'terminal256'
-      type: 'json'
-    pyg.pygmentize String(data), (highlight, error) ->
+
+    pyg.pygmentize code: String(data), (highlight, error) ->
       puts highlight, error
 
 sh = (cmd) ->
@@ -42,4 +47,3 @@ sh = (cmd) ->
       puts [output, error].join '\n' if output or error
 
 process.on 'SIGHUP', -> sh.last?.kill()
-
