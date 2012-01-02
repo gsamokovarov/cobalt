@@ -14,7 +14,6 @@ class exports.Pygmentizer extends EventEmitter
     @formatter = options.formatter
     @options = options.options or {}
     @path = options.path or '/api/formatter/'
-    @type = options.type or 'unencoded'
     @parser = options.parser or require('querystring').stringify
 
   # Colorizes the code and returns the highlight and the error status as the
@@ -35,8 +34,8 @@ class exports.Pygmentizer extends EventEmitter
       headers:
         'Content-Type': 'application/x-www-form-urlencoded'
         'Content-Length': query.length
-      host: @host
-      port: @port
+      host: options.host or @host
+      port: options.port or @port
       path: "#{options.path or @path}#{options.formatter or @formatter}"
 
     powder = [] # You pygmentize with the powder :)
@@ -60,6 +59,10 @@ class exports.Pygmentizer extends EventEmitter
 
 exports.Pygmentizer::colorize = exports.Pygmentizer::pygmentize
 
-# Provide more node-ish interface.
+# It may be easier for the people to look for a `Cobalt` class in a project
+# named `cobalt`. Plus, it's a pygment too :)
+exports.Cobalt = exports.Pygmentizer
+
+# Provides more node-ish interface.
 exports.createClient = (options = {}) ->
   new exports.Pygmentizer options

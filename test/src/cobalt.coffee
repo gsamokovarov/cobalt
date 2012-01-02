@@ -1,5 +1,5 @@
 {expect, dontExpect} = require 'moodswing'
-{Pygmentizer, createClient} = require '../../lib/cobalt'
+{Pygmentizer, Cobalt, createClient} = require '../../lib/cobalt'
 
 describe 'Pygmentizer', ->
   pyg = null
@@ -68,6 +68,10 @@ describe 'Pygmentizer', ->
     pyg.formatter = 'text'
 
     pyg.pygmentize('puts "Hello World!"').on 'end', done
+
+describe 'Cobalt', ->
+  it 'should be an alias of Pygmentizer', ->
+    expect(-> Cobalt).to be: Pygmentizer
 
 describe 'createClient', ->
   it 'should create a Pygmentizer object with the given options', ->

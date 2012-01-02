@@ -15,17 +15,9 @@ task 'test', 'Tests the project', ->
 
   mocha '-c', '-u bdd', '-R spec', 'test/lib/cobalt.js'
 
-task 'test', 'Tests the project', ->
-  puts "Testing..."
-
-  sh "node_modules/mocha/bin/mocha -c -u bdd -R spec test/lib/cobalt.js"
-
 task 'self', 'pygmentize self', ->
-  {createClient} = require './lib/cobalt'
-  fs = require 'fs'
-
-  fs.readFile __filename, (err, data) ->
-    pyg = createClient
+  require('fs').readFile __filename, (err, data) ->
+    pyg = require('./lib/cobalt').createClient
       host: 'localhost'
       port: '8000'
       lexer: 'coffee-script'

@@ -1,14 +1,13 @@
 (function() {
-  var Pygmentizer, createClient, dontExpect, expect, _ref, _ref2;
+  var Cobalt, Pygmentizer, createClient, dontExpect, expect, _ref, _ref2;
 
   _ref = require('moodswing'), expect = _ref.expect, dontExpect = _ref.dontExpect;
 
-  _ref2 = require('../../lib/cobalt'), Pygmentizer = _ref2.Pygmentizer, createClient = _ref2.createClient;
+  _ref2 = require('../../lib/cobalt'), Pygmentizer = _ref2.Pygmentizer, Cobalt = _ref2.Cobalt, createClient = _ref2.createClient;
 
   describe('Pygmentizer', function() {
     var pyg;
     pyg = null;
-    2 === 2;
     beforeEach(function() {
       return pyg = new Pygmentizer({
         host: process.env['PYGHOST'] || 'localhost',
@@ -118,6 +117,16 @@
     return it('should be an EventEmitter responding to the "end" event', function(done) {
       pyg.formatter = 'text';
       return pyg.pygmentize('puts "Hello World!"').on('end', done);
+    });
+  });
+
+  describe('Cobalt', function() {
+    return it('should be an alias of Pygmentizer', function() {
+      return expect(function() {
+        return Cobalt;
+      }).to({
+        be: Pygmentizer
+      });
     });
   });
 
