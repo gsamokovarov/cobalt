@@ -6,13 +6,13 @@ describe 'Pygmentizer', ->
 
   beforeEach ->
     pyg = new Pygmentizer
-      host: process.env['PYGHOST'] or 'localhost'
-      port: process.env['PYGPORT'] or 8000
+      host: process.env['HOST'] or 'pygmentize.me'
+      port: process.env['PORT'] or 80
 
   describe '::constructor', ->
     it 'should accept options used as defaults', ->
-      expect(pyg.host).to be: process.env['PYGHOST'] or 'localhost'
-      expect(pyg.port).to be: process.env['PYGPORT'] or 8000
+      expect(pyg.host).to be: process.env['HOST'] or 'pygmentize.me'
+      expect(pyg.port).to be: process.env['PORT'] or 80
 
     it 'should defaults @host to "pygmentize.me"', ->
       expect(new Pygmentizer().host).to be: 'pygmentize.me'

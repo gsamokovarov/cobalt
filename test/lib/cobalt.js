@@ -10,17 +10,17 @@
     pyg = null;
     beforeEach(function() {
       return pyg = new Pygmentizer({
-        host: process.env['PYGHOST'] || 'localhost',
-        port: process.env['PYGPORT'] || 8000
+        host: process.env['HOST'] || 'pygmentize.me',
+        port: process.env['PORT'] || 80
       });
     });
     describe('::constructor', function() {
       it('should accept options used as defaults', function() {
         expect(pyg.host).to({
-          be: process.env['PYGHOST'] || 'localhost'
+          be: process.env['HOST'] || 'pygmentize.me'
         });
         return expect(pyg.port).to({
-          be: process.env['PYGPORT'] || 8000
+          be: process.env['PORT'] || 80
         });
       });
       it('should defaults @host to "pygmentize.me"', function() {

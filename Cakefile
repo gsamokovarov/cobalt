@@ -18,8 +18,8 @@ task 'test', 'Tests the project', ->
 task 'self', 'pygmentize self', ->
   require('fs').readFile __filename, (err, data) ->
     pyg = require('./lib/cobalt').createClient
-      host: 'localhost'
-      port: '8000'
+      host: 'pygmentize.me' or process.env['HOST']
+      port: '80' or process.env['PORT']
       lexer: 'coffee-script'
       formatter: 'terminal256'
 

@@ -23,22 +23,24 @@ The results are given in a callback accepting two parameters. The first one is t
 
 ## CoffeeScript
 
-    pyg = require('cobalt').createClient lexer: 'ruby', formatter: 'terminal256' 
-    pyg.colorize 'puts "Hello World!"', (colorized, error) ->
-      console.log colorized unless error
+~~~~~ coffee-script
+pyg = require('cobalt').createClient lexer: 'ruby', formatter: 'terminal256' 
+  pyg.colorize 'puts "Hello World!"', (colorized, error) ->
+console.log colorized unless error
+~~~~~
 
 ## JavaScript
-    
-    var pyg = require('cobalt').createClient({lexer: 'ruby', formatter: 'terminal256'})
-    pyg.colorize('puts "Hello World!"', function(colorized, error) {
-      if (!error) console.log(colorized)
-    })
-
-# Install
+~~~~~ javascript
+var pyg = require('cobalt').createClient({lexer: 'ruby', formatter: 'terminal256'})
+pyg.colorize('puts "Hello World!"', function(colorized, error) {
+  if (!error) console.log(colorized)
+})
+~~~~~
+# Installation
 
     npm install cobalt
 
-# LICENSE
+# License
 
 Copyright (C) 2012 by Genadi Samokovarov
 
