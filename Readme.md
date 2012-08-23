@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/gsamokovarov/cobalt.png)](http://travis-ci.org/gsamokovarov/cobalt)
 Cobalt is a [node.js](http://nodejs.org) client for [pygmentize.me](http://pygmentize.me) - your friendly syntax highlighting service. It is written in [CoffeeScript](http://coffeescript.org), but the interface feel natural to JavaScript too.
 
 # Getting Started
